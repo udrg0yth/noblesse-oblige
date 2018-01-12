@@ -1,0 +1,17 @@
+<div class="container" style="width:100vw; height:100vh;background-color:black">
+	<div class="row justify-content-md-center align-middle">
+		<div class="col-3 align-middle">
+			<div class="row justify-content-md-center" style="padding:20px 20px 20px 20px; border:solid; border-width:1px;margin-top:60%;">
+			  	<div class="input-group" style="padding-bottom: 20px;">
+					<div class="input-group-addon">@</div>
+					<input type="text" [(ngModel)]="user.name" class="form-control" id="usernameFormInputGroup" placeholder="Username">
+				</div>
+			  	<div class="input-group"  style="padding-bottom: 20px;">
+					<div class="input-group-addon">@</div>
+					<input type="password" [(ngModel)]="user.password" class="form-control" id="passwordFormInputGroup" placeholder="Password">
+				</div>
+			   <button type="submit" (click)="onSubmit()" class="btn btn-primary">Submit</button>
+			</div>
+		</div>
+	</div>
+</div>

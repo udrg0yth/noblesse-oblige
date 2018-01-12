@@ -1,0 +1,55 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~angular-tree-component/dist/angular-tree-component.css';
+
+.angular-tree-component {
+	background-color:black !important;
+	height:94vh;
+}
+
+.tree-node {
+	color:white;
+}
+
+.node-content-wrapper :hover {
+	color:white !important;
+}
+
+.node-wrapper :hover {
+	background-color: grey !important;
+}
+
+.tree-node-active {
+	background-color: grey !important;
+}
+
+.node-content-wrapper-active {
+	background-color: grey !important;
+	border-radius: 10px;
+}
+
+.node-content-wrapper {
+	width:100%;
+	padding-left:10px;
+}
+
+.tree-node-focused {
+	color:white;
+}
+
+tree-node-expander {
+	display:none;
+}
+
+.users-online {
+	color:white !important;
+	margin-top:-8px;
+	padding: 2px 15px 2px 2px;
+}
+
+md-icon{
+  font-family: 'Material Icons' !important;
+}
+
+.tree-node-level-1 {
+	margin-top:30px !important;
+}

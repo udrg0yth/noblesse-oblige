@@ -1,0 +1,37 @@
+ <nav class="navbar navbar-inverse bg-inverse">
+  <div class="row">
+      <div class="col-1">
+      </div>
+      <div class="col-9">
+        <form class="form-inline">
+          <span *ngFor="let user of roomUsers.getUsers()">
+              <mat-icon svgIcon="account_box" matTooltip="{{user.name}}" [matTooltipPosition]="'below'" [style.color] ="user.assignedColor"></mat-icon>
+          </span>
+        </form>
+      </div>
+      <div class="col-1">
+          <mat-icon style="cursor:pointer; cursor:hand;" matTooltip="Logout" [matTooltipPosition]="'below'" [style.color] ="'#9a02ff'" >exit_to_app</mat-icon>
+      </div>
+  </div>
+</nav>
+ <tree-root [nodes]="nodes" [options]="options"></tree-root> 
+ <context-menu>
+  <ng-template contextMenuItem (execute)="showNewChildCreation($event.item)">
+   <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-action">New Child Item</a>
+   </div>
+  </ng-template>
+  <ng-template contextMenuItem divider="true"></ng-template>
+  <ng-template contextMenuItem (execute)="showEditNode($event.item)">
+   <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-action">Edit Item</a>
+   </div>
+  </ng-template>
+  <ng-template contextMenuItem divider="true"></ng-template>
+  <ng-template contextMenuItem (execute)="showDeleteNode($event.item)">
+   <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-action list-group-item-danger">Delete Item</a>
+   </div>
+  </ng-template>
+</context-menu>
+<notification></notification>

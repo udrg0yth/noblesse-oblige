@@ -1,0 +1,15 @@
+<div [hidden]="!isLeaf" >
+	<nav class="navbar navbar-inverse bg-inverse">
+		  <form class="form-inline">
+		  	<span style="color:white; padding-right:15px;">{{currentLeaf.name}}</span>
+		    <button *ngIf="articleState === 0" (click) = "createNewArticle()" class="btn btn-sm align-middle btn-outline-success" type="button">New Article</button>
+		    <button *ngIf="articleState === 2" (click) = "editArticle()" class="btn btn-sm align-middle btn-outline-success" type="button">Edit Mode</button>
+		    <button *ngIf="articleState === 1" (click) = "viewArticle()" class="btn btn-sm align-middle btn-outline-success" type="button">View Mode</button>
+		  </form>
+	</nav>
+	<div class="container">
+		<div class="row justify-content-md-center" style="height: 85vh; max-height:85vh">
+			<quill-editor  *ngIf="articleState === 1 || articleState === 2" #quillElement (onEditorCreated)="setQuillEditor($event)" (onContentChanged) = "onContentChanged($event)" [modules]="quillModules"></quill-editor>
+		</div>
+	</div>
+</div>
