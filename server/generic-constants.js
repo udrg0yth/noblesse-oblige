@@ -11,6 +11,11 @@ module.exports = function () {
 		GET_NODES:    '/nodes',
 		SAVE_NODE:    '/nodes/save',
 		DELETE_NODE:   '/nodes/delete',
+		GET_ARTICLE: '/articles/get',
+		GET_ARTICLE_CONTENT: '/articles/content/get',
+		SAVE_ARTICLE_CONTENT: '/articles/content/save',
+		CREATE_ARTICLE: '/articles/create',
+		UPDATE_ARTICLE: '/articles/update',
 
 		UPLOAD_URL: '/singleUpload',
 		GET_FILES_FOR_USER_URL: '/files/user',

@@ -13,47 +13,71 @@ export class ArticleTreeDbUpdateService {
 	constructor(private customHttp :CustomHttp) {
 	}
 
-	deleteNode(node) {
+	deleteNode(nodes) {
 		return this.customHttp
-        .post(`${GenericConstants.BASE_URL}${ArticleTreeConstants.DELETE_NODE}`, node)
-        .map((response :Response) => {
-        	return true;
-        })
-        .catch((error :Response | any) => {
-			return Observable.throw(error);
-        }).subscribe(res => {
-        	this.retrieveNodes().subscribe(nodes =>{
-        		this.nodeRetrieval.next(nodes);
-        	}, err =>{});
-        }, err => {
-
-        });
+                .post(`${GenericConstants.BASE_URL}${ArticleTreeConstants.DELETE_NODE}`, { nodeIds: nodes})
+                .map((response :Response) => {
+                	return true;
+                })
+                .catch((error :Response | any) => {
+        			return Observable.throw(error);
+                }).subscribe(res => {
+                	this.retrieveNodes().subscribe(nodes =>{
+                		this.nodeRetrieval.next({
+                                        nodes: nodes,
+                                        add: false,
+                                        remote:false,
+                                        savedNodeId: null});
+                	}, err =>{});
+                }, err => {
+                });
 	}
 
-	saveNode(node) {
+	saveNode(node, add : boolean, remote: boolean, callbackSaved, callbackRetrieve) {
 		return this.customHttp
-        .post(`${GenericConstants.BASE_URL}${ArticleTreeConstants.SAVE_NODE}`, node)
-        .map((response :Response) => {
-        	return true;
-        })
-        .catch((error :Response | any) => {
-			return Observable.throw(error);
-        }).subscribe(res => {
-        	this.retrieveNodes().subscribe(nodes =>{
-        		this.nodeRetrieval.next(nodes);
-        	}, err =>{});
-        }, err => {
-        });
+                .post(`${GenericConstants.BASE_URL}${ArticleTreeConstants.SAVE_NODE}`, node)
+                .map((response :Response) => {
+                	return true;
+                })
+                .catch((error :Response | any) => {
+        			return Observable.throw(error);
+                }).subscribe(res => {
+                        console.log('saved');
+                        if(callbackSaved) {
+                                callbackSaved();
+                        }
+                	this.retrieveNodes().subscribe(nodes =>{
+                                if(callbackRetrieve) {
+                                    callbackRetrieve(nodes);
+                                }
+                		this.nodeRetrieval.next({
+                			nodes: nodes,
+                			add : add,
+                			remote : remote,
+                			savedNodeId : node.id});
+                	}, err =>{});
+                }, err => {
+                });
 	}
 
 	retrieveNodes() :any {
 		return this.customHttp
-        .get(`${GenericConstants.BASE_URL}${ArticleTreeConstants.GET_NODES}`)
-        .map((response :Response) => {
-        	return response.json() || {};
-        })
-        .catch((error :Response | any) => {
+                .get(`${GenericConstants.BASE_URL}${ArticleTreeConstants.GET_NODES}`)
+                .map((response :Response) => {
+                	return response.json() || {};
+                })
+                .catch((error :Response | any) => {
 			return Observable.throw(error);
-        });
+                });
 	}
+
+    retrieveNodesAndPush(add :boolean, remote : boolean) {
+        this.retrieveNodes().subscribe(nodes =>{
+            this.nodeRetrieval.next({
+                nodes: nodes,
+                add : add,
+                remote : remote,
+                savedNodeId : null});
+        }, err =>{});
+    }
 }

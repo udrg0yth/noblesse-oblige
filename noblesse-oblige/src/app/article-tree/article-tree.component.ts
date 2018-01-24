@@ -1,5 +1,5 @@
 
-import { Component, ViewChild, OnInit, NgZone } from '@angular/core';
+import { Component, ViewChild, OnInit, NgZone, Compiler } from '@angular/core';
 import { TREE_ACTIONS, IActionMapping, ITreeOptions, TreeComponent } from 'angular-tree-component';
 import {ContextMenuComponent, ContextMenuService} from 'ngx-contextmenu';
 import { ArticleTreeService } from './article-tree.service';
@@ -7,10 +7,11 @@ import { MatDialog, MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ArtricleTreeNewDialogComponent } from './article-tree-new-dialog/article-tree-new-dialog.component';
 import { ArticleTreeDeleteDialogComponent } from './article-tree-delete-dialog/article-tree-delete-dialog.component';
-import { EditorService } from '../editor/editor.service';
+import { EditorStateService } from '../editor/editor.state.service';
 import { Router } from '@angular/router';
 import { RoomUsers } from '../models/room-users';
 import { AuthenticationService } from '../authentication/authentication.service';
+import { ArticleTreeDragService } from './article-tree.drag.service';
 
 
 @Component({
@@ -28,16 +29,25 @@ export class ArticleTreeComponent implements OnInit {
 		actionMapping: {
 		  mouse: {
 		    click: (tree, node, $event) => {
-		      if (node.hasChildren) {
-		      	TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-		      } else {
-		      	node.setIsActive(true);
-		      }
+		      console.log('Parent id of the node clicked upon', node.data.parentId);
+			  if(!this.waitOnArticleChange) {
+			 	  this.editorStateService.changeArticle(node);
+			      if (node.hasChildren) {
+			      	TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
+			      } else {
+			      	node.setIsActive(true);
+			      }
+		  	  }
+		  	  return false;
 		    },
 		    contextMenu: (tree, node, $event) => {
-		      if(node.data.parentId) {
 			  	this.showContextMenu(node, $event);
-			  }
+		    },
+		    dragStart: (tree, node, $event) => {
+		    	this.dragService.beginDrag(node);
+		    },
+		    drop: (tree, node, $event) => {
+		    	this.dragService.drop(node);
 		    }
 		  }
 		},
@@ -53,6 +63,7 @@ export class ArticleTreeComponent implements OnInit {
 	
 	nodes = [];
 	roomUsers :RoomUsers = new RoomUsers();
+	private waitOnArticleChange : boolean = false;
 
 	ngOnInit() {
 		this.articleTreeService.setTree(this.tree);
@@ -62,29 +73,42 @@ export class ArticleTreeComponent implements OnInit {
 	constructor(private contextMenuService: ContextMenuService, 
 		private articleTreeService: ArticleTreeService, 
 		private dialog: MatDialog, 
-		private editorService : EditorService,
 		private authenticationService : AuthenticationService,
+		private editorStateService : EditorStateService,
 		private router : Router,
 		private iconRegistry: MatIconRegistry, 
 		private sanitizer: DomSanitizer,
-		private ngZoneService : NgZone) {
+		private ngZoneService : NgZone,
+		private dragService : ArticleTreeDragService,
+		private compiler: Compiler) {
+		compiler.clearCache();
+
+		this.articleTreeService.roomUsersUpdate$.subscribe(roomUsers => {
+			this.ngZoneService.run(() => {
+				this.roomUsers = roomUsers;
+			});
+		});
+		this.articleTreeService.nodesUpdate$.subscribe(nodes => {
+			this.ngZoneService.run(() => {
+				this.nodes = nodes;
+				this.tree.treeModel.update();
+			});
+		});
 		this.authenticationService.isAuthenticated().subscribe(data => {
 				this.addIcons();
-
-				this.articleTreeService.nodesUpdate$.subscribe(nodes => {
-					this.ngZoneService.run(() => {
-						this.nodes = nodes;
-					});
-				});
-				this.articleTreeService.roomUsersUpdate$.subscribe(roomUsers => {
-					this.ngZoneService.run(() => {
-					this.roomUsers = roomUsers;
-					});
-				});
 				this.articleTreeService.connectToRoom(this.authenticationService.getClaims());
 		}, error => {
 				this.router.navigateByUrl('login');
 		});
+
+		this.editorStateService.waitOnArticleChangeUpdate$.subscribe(wait => {
+			this.waitOnArticleChange = wait;
+		});
+	}
+
+	logout() {
+		this.articleTreeService.clearRoomUsers();
+		this.authenticationService.logout();
 	}
 
 	private addIcons() {
@@ -132,6 +156,9 @@ export class ArticleTreeComponent implements OnInit {
 	}
 
 	showDeleteNode(node) {
+		if(!node.data.parentId) {
+			return;
+		}
 		this.dialog.closeAll();
 		let dialogRef = this.dialog
 		.open(ArticleTreeDeleteDialogComponent, {width: "50vw", height: "60vh", data: this.articleTreeService.findNode(node.data.id)});

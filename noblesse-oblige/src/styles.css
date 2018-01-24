@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~angular-tree-component/dist/angular-tree-component.css';
+@import '~quill-cursors/dist/quill-cursors.css';
 
 .angular-tree-component {
 	background-color:black !important;
@@ -52,4 +53,12 @@ md-icon{
 
 .tree-node-level-1 {
 	margin-top:30px !important;
+}
+
+.hide-toolbar {
+	visibility: hidden !important;
+}
+
+.unhide-toolbar {
+	visibility: visible !important;
 }

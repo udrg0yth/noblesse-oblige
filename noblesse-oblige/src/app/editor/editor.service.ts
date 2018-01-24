@@ -4,6 +4,7 @@ import { GenericConstants } from '../generics/generics.constants';
 import { Headers, Response } from '@angular/http';
 import { EditorStateService } from './editor.state.service';
 import { Observable, Subject } from 'rxjs/Rx';
+import { RoomUsers } from '../models/room-users';
 
 @Injectable()
 export class EditorService {
@@ -14,6 +15,12 @@ export class EditorService {
 	private articleTitleUpdate = new Subject<string>();
 	articleTitleUpdate$ = this.articleTitleUpdate.asObservable();
 
+	private roomUsersUpdate = new Subject<RoomUsers>();
+	roomUsersUpdate$ = this.roomUsersUpdate.asObservable();
+
+	private waitOnArticleChangeUpdate = new Subject<boolean>();
+	waitOnArticleChangeUpdate$ = this.waitOnArticleChangeUpdate.asObservable();
+
 	constructor(private customHttp :CustomHttp,
 		private editorStateService: EditorStateService) {
 		this.editorStateService.articleStateUpdate$.subscribe(state => {
@@ -23,19 +30,41 @@ export class EditorService {
 		this.editorStateService.articleTitleUpdate$.subscribe(title => {
 			this.articleTitleUpdate.next(title);
 		});
-	}
 
-	showEditor() {
+		this.editorStateService.roomUsersUpdate$.subscribe(roomUsers => {
+			this.roomUsersUpdate.next(roomUsers);
+		});
 
-	}
-
-	/*disconnectFromCurrentRoom() {
-
+		this.editorStateService.waitOnArticleChangeUpdate$.subscribe(wait => {
+			this.waitOnArticleChangeUpdate.next(wait);
+		});
 	}
 
 	setQuillEditor(quillEditor: any) {
 		this.quillEditor = quillEditor;
+		this.editorStateService.setQuillEditor(quillEditor);
 	}
+
+	createNewArticle() {
+		this.editorStateService.createNewArticle();
+	}
+
+	setArticleState(state : number) {
+		this.editorStateService.setArticleState(state);
+	}
+
+	onContentChanged(delta : any) {
+		this.editorStateService.onContentChanged(delta);
+	}
+
+	emitDelta(delta : any, range: any, source: string) {
+		this.editorStateService.emitDelta(delta, range, source);
+	}
+	/*disconnectFromCurrentRoom() {
+
+	}
+
+	
 
 	getContents() {
 		if(this.quillEditor) {
@@ -55,10 +84,7 @@ export class EditorService {
 		this.updateArticleState.next(state);
 	}
 
-	createNewArticle() {
-		this.updateArticleState.next(1);
-		this.currentLeaf.content={};
-	}
+	
 
 	setCurrentNode(node :any) {
 		this.updateCurrentLeaf.next(node);

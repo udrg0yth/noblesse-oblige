@@ -50,21 +50,29 @@ var express     =  require('express'),
         return usersInfo;
     }
 
-    socketio.on('connection', function (socket) {        var userInfo = socket.handshake.query;
+    socketio.on('connection', function (socket) {        
+        var userInfo = socket.handshake.query;
         var socketRef = socket;
         socketRef.userInfo = userInfo;
         var roomId = userInfo.roomId;
         socketRef.join(roomId);
         if(getRoomSocketIds(roomId).length === 1) {
             userInfo.isMaster = true;
-            socketRef.emit('masterAssignEvent');
+            socketRef.emit('masterAssignEvent', {
+                isMaster:true
+            });
         } else {
+            socketRef.emit('masterAssignEvent', {
+                isMaster:false
+            });
+            userInfo.isMaster = false;
             if(roomId === globalRoomId) {
-                console.log('noobNodeSyncRequestEvent from ', userInfo.name);
+               // console.log('noobNodeSyncRequestEvent from ', userInfo.name);
                 socketRef.broadcast.to(roomId).emit('noobNodeSyncRequestEvent', {socketId: socketRef.id});
             } else {
-                socketRef.broadcast.to(roomId).emit('noobSyncRequestEvent', {socketId: socketRef.id});
+                socketRef.broadcast.to(roomId).emit('noobArticleSyncRequestEvent', {socketId: socketRef.id});
             }
+            console.log(roomId, getUsersInfoExcept(socketRef.id, roomId))
             socketRef.emit('roomiesListEvent' , {
                 roomies: getUsersInfoExcept(socketRef.id, roomId)
             });
@@ -79,25 +87,24 @@ var express     =  require('express'),
 
         socketRef.on('nodeSyncEvent', function(data) {
             var socket = socketio.sockets.connected[data.socketId];
-                console.log('nodeSyncEvent from ', userInfo.name, ' to ', socket.userInfo.name , 'with nodes', data.nodes);
+               // console.log('nodeSyncEvent from ', userInfo.name, ' to ', socket.userInfo.name , 'with nodes', data.nodes);
             if(socket) {
                 socket.emit('nodeSyncResponseEvent', data.nodes);
             }
         });
 
-        socketRef.on('contentSyncEvent', function(data) {
-            socketio.sockets.connected[data.socketId].emit('contentSyncEvent', {
-                content: data.content,
-                timestamp: data.timestamp
-            });
-            console.log('sent content sync to ', socketio.sockets.connected[data.socketId].userInfo.name);
+        socketRef.on('articleSyncEvent', function(data) {
+            var socket = socketio.sockets.connected[data.socketId];
+            if(socket) {
+                socket.emit('articleSyncResponseEvent', {
+                    content: data.content,
+                    timestamp: data.timestamp
+                });
+            }
         });
 
-        socketRef.on('deltaSyncEvent', function(data) {
-            socket.broadcast.to(roomId).emit('deltaSyncEvent', {
-                delta: data.delta,
-                timestamp: data.timestamp
-            });
+        socketRef.on('remoteDeltaEvent', function(data) {
+            socket.broadcast.to(roomId).emit('remoteDeltaEvent', data);
         });
 
         socketRef.on('nodeDeletionEvent', function(data) {
@@ -123,24 +130,26 @@ var express     =  require('express'),
             var users = getRoomSocketIds(roomId);
             console.log('Current sockets: ', users);
             if(users) {
-                console.log('Sending someone left to', users);
+                //console.log('Sending someone left to', users);
                 for(var i=0;i<users.length;i++){ 
-                    console.log('Emitting ', userInfo.name, ' left to ', socketio.sockets.connected[users[i]].userInfo.name);
+                    //console.log('Emitting ', userInfo.name, ' left to ', socketio.sockets.connected[users[i]].userInfo.name);
                     socketio.sockets.connected[users[i]].emit('someoneLeft', {
                         name: userInfo.name
                     });
                 };
             }
-            console.log(users, socketRef.userInfo.isMaster);
+           // console.log(users, socketRef.userInfo.isMaster);
             if(socketRef.userInfo.isMaster && users.length) {
-                console.log('User who left is master');
+                //console.log('User who left is master');
                 var rand = Math.floor(Math.random() * users.length);
-                console.log('Random: ', rand);
-                console.log('Socket selected id: ', users[rand]);
+                //console.log('Random: ', rand);
+                //console.log('Socket selected id: ', users[rand]);
                 var socketMaster = socketio.sockets.connected[users[rand]];
-                console.log('Socket:', socketMaster);
+                //console.log('Socket:', socketMaster);
                 socketMaster.userInfo.isMaster = true;
-                socketMaster.emit('masterAssignEvent');
+                socketMaster.emit('masterAssignEvent', {
+                    isMaster: true
+                });
             }
         });
     });

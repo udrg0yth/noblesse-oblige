@@ -10,7 +10,7 @@
         </form>
       </div>
       <div class="col-1">
-          <mat-icon style="cursor:pointer; cursor:hand;" matTooltip="Logout" [matTooltipPosition]="'below'" [style.color] ="'#9a02ff'" >exit_to_app</mat-icon>
+          <mat-icon style="cursor:pointer; cursor:hand;" (click) = "logout()" matTooltip="Logout" [matTooltipPosition]="'below'" [style.color] ="'#9a02ff'" >exit_to_app</mat-icon>
       </div>
   </div>
 </nav>
@@ -34,4 +34,3 @@
    </div>
   </ng-template>
 </context-menu>
-<notification></notification>

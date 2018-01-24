@@ -58,12 +58,11 @@ export class AuthenticationService {
 
     logout() :void{
         localStorage.removeItem('token');
-        console.log(localStorage.getItem('token'));
         this.router.navigateByUrl('login');
+        this.onLogout.next(true);
     }
 
     setClaims(token) :void {
-        console.log(token);
        if(token) {
            let decoded = this.jwtHelper.decodeToken(token);
            this.user = new User(decoded.username, decoded.assignedUserColor);
@@ -74,7 +73,6 @@ export class AuthenticationService {
         let token = localStorage.getItem('token');
         if(token) {
            let decoded = this.jwtHelper.decodeToken(token);
-           console.log(decoded);
            this.user = new User(decoded.username, decoded.assignedUserColor);
         }
         return this.user;

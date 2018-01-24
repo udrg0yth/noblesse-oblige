@@ -22,4 +22,12 @@ export class User {
 	get assignedColor() :string {
 		return this._assignedColor;
 	}
+
+	get cursorConfig() : any {
+		return {
+		  id: this._name,
+		  name: this._name,
+		  color: this._assignedColor
+		};
+	}
 }

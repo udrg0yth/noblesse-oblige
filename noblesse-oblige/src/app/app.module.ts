@@ -29,6 +29,10 @@ import { CollaborationService } from './collaboration/collaboration.service';
 import { NotificationComponent } from './notification/notification.component';
 import { MatButtonModule } from '@angular/material/button';
 import { EditorStateService } from './editor/editor.state.service';
+import { ArticleTreeDragService } from './article-tree/article-tree.drag.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { QuillStateService } from './editor/editor.quill.state.service';
+import { QuillSaveService } from './editor/editor.quill.save.service';
 
 export function customHttpFactory(backend: XHRBackend, defaultOptions: RequestOptions) { return new CustomHttp(backend, defaultOptions); }
 
@@ -78,7 +82,8 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
     MatTooltipModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatProgressSpinnerModule
   ],
   providers: [{
       provide: CustomHttp,
@@ -90,7 +95,10 @@ const appRoutes: Routes = [
   AuthenticationService,
   CollaborationService,
   ArticleTreeDbUpdateService,
-  EditorStateService],
+  EditorStateService,
+  ArticleTreeDragService,
+  QuillStateService,
+  QuillSaveService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

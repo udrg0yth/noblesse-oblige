@@ -92,21 +92,112 @@ module.exports = function(db, application, genericConstants, tokenHandler) {
     }
     node.lastUpdateDate = now;
     node.lastUpdatedBy = req.username;
-    nodesCollection.save(node, {w:1}, function() {
+    delete node.children;
+    nodesCollection.count({parentId: node.parentId})
+    .then(function(numberOfChildren) {
+      console.log(numberOfChildren);
+      if(numberOfChildren === 0) {
+         nodesCollection
+        .findOne({id: node.parentId})
+        .then(function(document) {
+          if(document.article) {
+            node.article = document.article;
+          } 
+          nodesCollection.save(node, {w:1}, function() {
+            return res.status(200).json({});
+          });
+        })
+        .catch(function(ex) {
+           return res.status(500).json({message: ex.message});
+        });
+      } else {
+        console.log('saving');
+        nodesCollection.save(node, {w:1}, function() {
+          return res.status(200).json({});
+        });
+      }
+    })
+    .catch(function(ex) {
+      return res.status(500).json({message: ex.message});
     });
-    return res.status(200).json({});
   });
 
   application.post(genericConstants.DELETE_NODE, function(req, res) {
-    var node = req.body;
-    nodesCollection.removeOne({_id: new ObjectId(node._id)}, function(res, err) {
-      console.log(res, err);
+    var data = req.body;
+    var toObjectIds = [];
+    for(var i=0;i<data.nodeIds.length;i++) {
+      toObjectIds.push(new ObjectId(data.nodeIds[i]));
+    }
+    console.log(toObjectIds);
+    nodesCollection.remove({ _id: {$in : toObjectIds}}, function() {
+      return res.status(200).json({});
+    })
+    .catch(function(ex) {
+      res.status(500).json({message : ex.message});
     });
-    return res.status(200).json({});
+  });
+
+  application.post(genericConstants.GET_ARTICLE, function(req, res) {
+    var node = req.body;
+    nodesCollection
+    .findOne({_id : new ObjectId(node._id)}, { fields: {article: 1}})
+    .then(function(document) {
+      if(document) {
+        if(document.article) {
+          res.status(200).json(document.article);
+        } else {
+          res.status(200).json({});
+        }
+      } else {
+        res.status(404).json({message: 'INVALID_NODE_ID'});
+      }
+    })
+    .catch(function(ex) {
+      res.status(500).json({message: ex.message})
+    })
+  });
+
+  application.post(genericConstants.GET_ARTICLE_CONTENT, function(req, res) {
+     var node = req.body;
+     nodesCollection
+    .findOne({_id : new ObjectId(node.nodeId)}, { fields: {'article.contents': 1}})
+    .then(function(document) {
+      if(document) {
+        if(document.article && document.article.contents) {
+          res.status(200).json(document.article.contents);
+        } else {
+          res.status(200).json({});
+        }
+      } else {
+        res.status(404).json({message: 'INVALID_NODE_ID'});
+      }
+    })
+    .catch(function(ex) {
+      res.status(500).json({message: ex.message})
+    })
+  });
+
+  application.post(genericConstants.SAVE_ARTICLE_CONTENT, function(req, res) {
+    var node = req.body;
+     nodesCollection
+    .findOne({_id : new ObjectId(node.nodeId)})
+    .then(function(document) {
+      if(document) {
+       document.article.contents = node.contents;
+       nodesCollection.save(document, {w:1}, function(err, doc) {
+       });
+       res.status(200).json({});
+      } else {
+        res.status(404).json({message: 'INVALID_NODE_ID'});
+      }
+    })
+    .catch(function(ex) {
+      res.status(500).json({message: ex.message})
+    })
   });
 
   application.post(genericConstants.CREATE_ARTICLE, function(req, res) {
-    var node = req.body;
+    var data = req.body;
     var now = new Date();
     var article = {
       contents: {},
@@ -116,19 +207,22 @@ module.exports = function(db, application, genericConstants, tokenHandler) {
       lastUpdatedBy: req.username,
       lastUpdateDate: now
     };
-    node.article = article;
-    nodesCollection.save(node, {w:1}, function() {
+    nodesCollection.findOne({_id : new ObjectId(data._id)})
+    .then(function(document) {
+      if(document) {
+         document.article = article;
+         nodesCollection.save(document, {w:1}, function() {
+         });
+         return res.status(200).json(article);
+      } else {
+         return res.status(404).json({message: 'INVALID_NODE_ID'});
+      }
     });
-    return res.status(200).json({});
+    
   });
 
   application.post(genericConstants.UPDATE_ARTICLE, function(req, res) {
     var data = req.body;
-    var article = {
-      contents: data.contents,
-      lastUpdatedBy: req.username,
-      lastUpdateDate: new Date()
-    };
     nodesCollection.updateOne({_id: new ObjectId(data._id)}, 
       {$set: {
         'article.contents': data.contents, 

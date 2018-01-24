@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Compiler } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthenticationService } from './authentication.service';
 @Component({
@@ -12,14 +12,14 @@ export class AuthenticationComponent {
 		password: null
 	};
 
-	constructor(private authenticationService :AuthenticationService, private router: Router) {
+	constructor(private authenticationService :AuthenticationService, private router: Router, private compiler: Compiler) {
+		compiler.clearCache();
 	}
 
 	onSubmit() {
 		if(this.user.name && this.user.password) {
 			this.authenticationService
 			.authenticate(this.user).subscribe(result => {
-				console.log(result);
 				if(result) {
 					this.router.navigateByUrl('/documents');
 				}

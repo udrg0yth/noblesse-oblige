@@ -51,7 +51,6 @@ export class CustomHttp extends Http {
   intercept(observable: Observable<Response>): Observable<Response> {
       return observable.map((response :Response) => {
           if(response.headers.get('x-auth-token')) {
-            console.log('setting token', response.headers.get('x-auth-token'));
             this.setAuthToken(response.headers.get('x-auth-token'));
           }
           return response;

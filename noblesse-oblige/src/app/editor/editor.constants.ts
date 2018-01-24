@@ -23,6 +23,13 @@ export class EditorConstants {
 
 	    ['link', 'image', 'video'],                         // link and image, video
 	    ['formula']
-	  ]
-	};
+	  ],
+      cursors: true // or with options object, cursors: { ... }
+    };
+
+	public static GET_ARTICLE : string = '/articles/get';
+	public static GET_ARTICLE_CONTENTS :string = '/articles/content/get';
+	public static SAVE_ARTICLE_CONTENT : string = '/articles/content/save';
+	public static CREATE_ARTICLE : string = '/articles/create';
+	public static SAVE_THRESHOLD : number = 40;
 }

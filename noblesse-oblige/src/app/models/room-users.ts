@@ -8,9 +8,9 @@ export class RoomUsers {
 	}
 
 	public addUser(user: User) {
-		if(user.name && this.findIndexByName(user) == -1) {
+		//if(user.name && this.findIndexByName(user) == -1) {
 			this._users.push(user);
-		}
+		//}
 	}
 
 	public getUsers() :Array<User> {
@@ -18,16 +18,22 @@ export class RoomUsers {
 	}
 
 	public removeUser(user) {
-		console.log(user.name);
 		let index = this.findIndexByName(user);
-		console.log(index);
 		if(index != -1) {
 			this._users.splice(index, 1);
 		}
-		console.log(this._users);
 	}
 
 	private findIndexByName(user) {
 		return this._users.findIndex(userCandidate => userCandidate.name == user.name);
+	}
+
+	public findByName(user) {
+		let index = this.findIndexByName({
+			name:user
+		});
+		if(index != -1) {
+			return this._users[index];
+		}
 	}
 }
