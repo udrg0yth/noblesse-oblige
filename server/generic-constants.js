@@ -31,7 +31,7 @@ module.exports = function () {
 			UPLOAD_DIR_BASE: 'C:/Uploads/'
 		},
 		PROD: {
-			FRONTEND_ROOT_URL: 'http://178.62.127.9:4200',
+			FRONTEND_ROOT_URL: 'http://34.244.36.79:4200',
 			UPLOAD_DIR_BASE: '/root/Uploads/'
 		}
 	}
