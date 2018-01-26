@@ -74,7 +74,7 @@ export class ArticleTreeDbUpdateService {
 
     getArticleForNodeId(nodeId :string) {
         return this.customHttp
-            .post(`${GenericConstants.BASE_URL}${EditorConstants.GET_ARTICLE}`, {nodeId: nodeId})
+            .post(`${GenericConstants.BASE_URL}${EditorConstants.GET_ARTICLE}`, {_id: nodeId})
             .map((response :Response) => {
                 return response.json() || {};
             })

@@ -140,7 +140,7 @@ module.exports = function(db, application, genericConstants, tokenHandler) {
   application.post(genericConstants.GET_ARTICLE, function(req, res) {
     var node = req.body;
     nodesCollection
-    .findOne({_id : new ObjectId(node.nodeId)}, { fields: {article: 1}})
+    .findOne({_id : new ObjectId(node._id)}, { fields: {article: 1}})
     .then(function(document) {
       if(document) {
         if(document.article) {
