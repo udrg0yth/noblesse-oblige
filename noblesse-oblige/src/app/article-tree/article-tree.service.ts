@@ -274,7 +274,7 @@ export class ArticleTreeService implements OnDestroy{
 		newParentNode.children.push(node);
 		this.collaborationService.emitNodeMoved(node, oldParentId);
 		if(this.collaborationService.isGlobalMaster()) {
-			this.articleTreeDbUpdateService.getArticleForNodeId(nodeId).subscribe(article => {
+			this.articleTreeDbUpdateService.getArticleForNodeId(node._id).subscribe(article => {
 				node.article = article;
 				this.articleTreeDbUpdateService.saveNode(node, false, false, null, null);
 			}, error => {});
