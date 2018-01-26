@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { CustomHttp } from '../generics/generics.interceptor';
 import { GenericConstants } from '../generics/generics.constants';
 import { ArticleTreeConstants} from './article-tree.constants';
+import { EditorConstants } from '../editor/editor.constants';
 import { Headers, Response } from '@angular/http';
 import { Observable, Subject } from 'rxjs/Rx';
 
@@ -70,6 +71,17 @@ export class ArticleTreeDbUpdateService {
 			return Observable.throw(error);
                 });
 	}
+
+    getArticleForNodeId(nodeId :string) {
+        return this.customHttp
+            .post(`${GenericConstants.BASE_URL}${EditorConstants.GET_ARTICLE}`, {nodeId: nodeId})
+            .map((response :Response) => {
+                return response.json() || {};
+            })
+            .catch((error :Response | any) => {
+                return Observable.throw(error);
+            });
+    }
 
     retrieveNodesAndPush(add :boolean, remote : boolean) {
         this.retrieveNodes().subscribe(nodes =>{
